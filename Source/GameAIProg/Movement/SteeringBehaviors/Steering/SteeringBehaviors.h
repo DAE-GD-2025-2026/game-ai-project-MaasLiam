@@ -55,3 +55,5 @@ public:
 	//steering
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
 };
+
+void DrawDebug(float DeltaT, ASteeringAgent & Agent);
