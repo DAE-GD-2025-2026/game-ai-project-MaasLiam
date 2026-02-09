@@ -56,19 +56,27 @@ SteeringOutput Flee::CalculateSteering(float DeltaT, ASteeringAgent & Agent)
 SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent & Agent)
 {
 	SteeringOutput Steering{};
-	FColor Red = FColor::Red;
 	
-	
-	Steering.LinearVelocity = -Target.Position;
+	Steering.LinearVelocity = Target.Position - Agent.GetPosition();
 	Steering.LinearVelocity.Normalize();
-	float OuterRadius{100.f};
-	float InnerRadius{25.f};
+	
+	//DrawDebug
+	FColor Red = FColor::Red;
+	FColor Blue = FColor::Blue;
+	float OuterRadius{400.f};
+	float InnerRadius{100.f};
 	FVector AgentPosition{};
 	AgentPosition.X = Agent.GetPosition().X;
 	AgentPosition.Y = Agent.GetPosition().Y;
 	
-	DrawCircle(Agent.GetWorld(), Agent.GetActorLocation(), AgentPosition, AgentPosition, Red, InnerRadius, 6, false, -1.f, 0.f, 1.f); 
-	//Add debug rendering for grades!
-
+	//Slow
+	DrawDebugCircle(Agent.GetWorld(), AgentPosition, OuterRadius, 20, Blue,
+					false, -1, 0, 0, 
+					FVector(0,1,0), FVector(1,0,0), false);
+	//Stop
+	DrawDebugCircle(Agent.GetWorld(), AgentPosition, InnerRadius, 20, Red,
+					false, -1, 0, 0, 
+					FVector(0,1,0), FVector(1,0,0), false);
+	
 	return Steering;
 }
