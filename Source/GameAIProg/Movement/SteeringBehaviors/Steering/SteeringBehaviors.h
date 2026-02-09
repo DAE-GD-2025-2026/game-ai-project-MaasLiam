@@ -33,5 +33,25 @@ class Seek : public ISteeringBehavior
 	virtual ~Seek() override = default;
 	
 	//steering
-	virtual  SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
+};
+
+class Flee : public ISteeringBehavior
+{
+public:
+	Flee() = default;
+	virtual ~Flee() override = default;
+	
+	//steering
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
+};
+
+class Arrive : public ISteeringBehavior
+{
+public:
+	Arrive() = default;
+	virtual ~Arrive() override = default;
+	
+	//steering
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
 };
