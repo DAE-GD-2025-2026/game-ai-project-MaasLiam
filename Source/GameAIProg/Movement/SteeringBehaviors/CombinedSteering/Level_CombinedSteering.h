@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "CoreMinimal.h"
 #include "CombinedSteeringBehaviors.h"
 #include "GameAIProg/Shared/Level_Base.h"
@@ -31,6 +34,36 @@ private:
 	//Datamembers
 	bool UseMouseTarget = false;
 	bool CanDebugRender = false;
+	
+	enum class BehaviorTypes
+	{
+		BlendedSteering,
+		PrioritySteering,
 
+		// @ End
+		Count
+	};
+	
+	struct ImGui_Agent final
+	{
+		ASteeringAgent* Agent{nullptr};
+		std::unique_ptr<ISteeringBehavior> Behavior{nullptr};
+		int SelectedBehavior{static_cast<int>(BehaviorTypes::BlendedSteering)};
+		int SelectedTarget = -1;
+	};
+	
+	std::vector<ImGui_Agent> SteeringAgents{};
+	std::vector<std::string> TargetLabels{};
+	
+	int AgentIndexToRemove = -1;
+	
+	bool AddAgent(BehaviorTypes BehaviorType = BehaviorTypes::BlendedSteering, bool AutoOrient = true);
+	void RemoveAgent(unsigned int Index);
+	void SetAgentBehavior(ImGui_Agent& Agent);
+
+	void RefreshTargetLabels();
+	void UpdateTarget(ImGui_Agent& Agent);
+	void RefreshAgentTargets(unsigned int IndexRemoved);
 	
 };
+

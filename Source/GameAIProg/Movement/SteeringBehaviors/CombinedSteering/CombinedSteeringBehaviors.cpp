@@ -1,6 +1,8 @@
 
 #include "CombinedSteeringBehaviors.h"
 #include <algorithm>
+#include <cassert>
+
 #include "../SteeringAgent.h"
 
 BlendedSteering::BlendedSteering(const std::vector<WeightedBehavior>& WeightedBehaviors)
@@ -12,17 +14,37 @@ BlendedSteering::BlendedSteering(const std::vector<WeightedBehavior>& WeightedBe
 SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput BlendedSteering = {};
-	//TODO: Calculate the weighted average steeringbehavior
-
-	if (Agent.GetDebugRenderingEnabled())
-		DrawDebugDirectionalArrow(
-			Agent.GetWorld(),
-			Agent.GetActorLocation(),
-			Agent.GetActorLocation() + FVector{BlendedSteering.LinearVelocity, 0} * (Agent.GetMaxLinearSpeed() * DeltaT),
-			30.f, FColor::Red
-			);
+	// TODO: Calculate the weighted average steeringbehavior
+	
+	// for (auto const& ElementBehavior : WeightedBehaviors)
+	// {
+	// 	switch (ElementBehavior.pBehavior)
+	// 	{
+	// 		case 
+	// 		default:
+	// 			assert(false);
+	// 	}
+	// 	
+	// }
+	// TODO: Add debug drawing
 
 	return BlendedSteering;
+}
+
+float* BlendedSteering::GetWeight(ISteeringBehavior* const SteeringBehavior)
+{
+	auto it = find_if(WeightedBehaviors.begin(),
+		WeightedBehaviors.end(),
+		[SteeringBehavior](const WeightedBehavior& Elem)
+		{
+			return Elem.pBehavior == SteeringBehavior;
+		}
+	);
+
+	if(it!= WeightedBehaviors.end())
+		return &it->Weight;
+	
+	return nullptr;
 }
 
 //*****************

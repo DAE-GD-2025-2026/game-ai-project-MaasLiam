@@ -1,4 +1,4 @@
-﻿#include "Level_CombinedSteering.h"
+#include "Level_CombinedSteering.h"
 
 #include "imgui.h"
 
@@ -14,7 +14,6 @@ ALevel_CombinedSteering::ALevel_CombinedSteering()
 void ALevel_CombinedSteering::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void ALevel_CombinedSteering::BeginDestroy()
@@ -97,6 +96,32 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 		ImGui::End();
 	}
 #pragma endregion
-
+	
 	// Combined Steering Update
+ // TODO: implement handling mouse click input for seek
+	
+
+ // TODO: implement Make sure to also evade the wanderer
+	
+}
+
+bool ALevel_CombinedSteering::AddAgent(BehaviorTypes BehaviorType, bool AutoOrient)
+{
+	ImGui_Agent ImGuiAgent = {};
+	ImGuiAgent.Agent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{0,0,90}, FRotator::ZeroRotator);
+	if (IsValid(ImGuiAgent.Agent))
+	{
+		ImGuiAgent.SelectedBehavior = static_cast<int>(BehaviorType);
+		ImGuiAgent.SelectedTarget = -1; // Mouse
+		
+		SetAgentBehavior(ImGuiAgent);
+
+		SteeringAgents.push_back(std::move(ImGuiAgent));
+		
+		RefreshTargetLabels();
+
+		return true;
+	}
+
+	return false;
 }

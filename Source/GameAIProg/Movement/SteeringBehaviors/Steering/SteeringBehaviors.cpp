@@ -6,7 +6,7 @@ void DrawDebug(float DeltaT, ASteeringAgent & Agent)
 {
 	FColor ColorGreen = FColor::Green;
 	FColor ColorMagenta = FColor::Magenta;
-	FColor ColorBlue = FColor::Blue;
+	FColor ColorCyan = FColor::Cyan;
 	FVector AgentLocation{Agent.GetPosition().X, Agent.GetPosition().Y, 0};
 	FVector AgentVelocity{Agent.GetVelocity().X, Agent.GetVelocity().Y, 0};
 	
@@ -25,7 +25,7 @@ void DrawDebug(float DeltaT, ASteeringAgent & Agent)
 	//DrawForward
 	DrawDebugLine(Agent.GetWorld(), AgentLocation, AgentLocation +( Agent.GetActorForwardVector() * Agent.GetLinearVelocity().Length()), ColorMagenta);
 	//DrawAngle
-	DrawDebugLine(Agent.GetWorld(), AgentLocation, AgentLocation + AngleDir *  AngleLength, FColor::Cyan, false,0.f,0,2.f);
+	DrawDebugLine(Agent.GetWorld(), AgentLocation, AgentLocation + AngleDir *  AngleLength, ColorCyan, false,0.f,0,2.f);
 }
 //SEEK
 //*******
@@ -87,22 +87,20 @@ SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
 
-	const FVector2D agentPos = Agent.GetPosition();
-	const FVector2D toTarget = Target.Position - agentPos;
+	const FVector2D AgentPos = Agent.GetPosition();
+	const FVector2D ToTarget = Target.Position - AgentPos;
 
-	if (toTarget.IsNearlyZero())
+	if (ToTarget.IsNearlyZero())
 		return Steering;
 	
-	const float desiredYaw = FMath::RadiansToDegrees(FMath::Atan2(toTarget.Y, toTarget.X));
-	const float currentYaw = Agent.GetRotation();
-	const float deltaYaw = FMath::FindDeltaAngleDegrees(currentYaw, desiredYaw);
-	
-	const float MaxTurnSpeed = 180.f;
-	
-	float angularVel = deltaYaw * 5.f;
-	angularVel = FMath::Clamp(angularVel, -MaxTurnSpeed, MaxTurnSpeed);
+	const float DesiredYaw = FMath::RadiansToDegrees(FMath::Atan2(ToTarget.Y, ToTarget.X));
+	const float CurrentYaw = Agent.GetRotation();
+	const float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentYaw, DesiredYaw);
 
-	Steering.AngularVelocity = angularVel;
+	float AngularVel = DeltaYaw * 5.f;
+	AngularVel = FMath::Clamp(AngularVel, -Agent.GetMaxAngularSpeed(), Agent.GetMaxAngularSpeed());
+
+	Steering.AngularVelocity = AngularVel;
 
 	return Steering;
 }
