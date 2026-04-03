@@ -57,7 +57,7 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	SteeringOutput Steering{};
 
 	const float SlowRadius = 400.f;
-	const float TargetRadius = 100.f;
+	
 
 	const FVector2D agentPos = Agent.GetPosition();
 	const FVector2D toTarget = Target.Position - agentPos;
@@ -66,7 +66,7 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	float speedFactor = 1.f;
 	if (distance < SlowRadius)
 	{
-		speedFactor = (distance - TargetRadius) / (SlowRadius - TargetRadius);
+		speedFactor = (distance - m_innerRadius) / (SlowRadius - m_innerRadius);
 		speedFactor = FMath::Clamp(speedFactor, 0.f, 1.f);
 	}
 
@@ -77,7 +77,7 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	const FVector center(agentPos.X, agentPos.Y, 0.f);
 	DrawDebugCircle(Agent.GetWorld(), center, SlowRadius, 32, FColor::Blue, false, 0.f, 0, 2.f,
 					FVector(1,0,0), FVector(0,1,0), false);
-	DrawDebugCircle(Agent.GetWorld(), center, TargetRadius, 32, FColor::Red, false, 0.f, 0, 2.f,
+	DrawDebugCircle(Agent.GetWorld(), center, m_innerRadius, 32, FColor::Red, false, 0.f, 0, 2.f,
 					FVector(1,0,0), FVector(0,1,0), false);
 
 	DrawDebug(DeltaT, Agent);

@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "../Steering/SteeringBehaviors.h"
+#include "Movement/SteeringBehaviors/SteeringAgent.h"
 
 //****************
 //BLENDED STEERING
@@ -26,13 +27,11 @@ public:
 
 	float* GetWeight(ISteeringBehavior* const SteeringBehavior);
 	
-	// returns a reference to the weighted behaviors, can be used to adjust weighting. Is not intended to alter the behaviors themselves.
 	std::vector<WeightedBehavior>& GetWeightedBehaviorsRef() { return WeightedBehaviors; }
 
 private:
 	std::vector<WeightedBehavior> WeightedBehaviors = {};
 
-	// using ISteeringBehavior::SetTarget; // made private because targets need to be set on the individual behaviors, not the combined behavior
 };
 
 //*****************
@@ -50,5 +49,4 @@ public:
 private:
 	std::vector<ISteeringBehavior*> m_PriorityBehaviors = {};
 
-	// using ISteeringBehavior::SetTarget; // made private because targets need to be set on the individual behaviors, not the combined behavior
 };

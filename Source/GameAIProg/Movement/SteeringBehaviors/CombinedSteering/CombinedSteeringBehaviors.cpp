@@ -1,8 +1,6 @@
 
 #include "CombinedSteeringBehaviors.h"
 #include <algorithm>
-#include <cassert>
-
 #include "../SteeringAgent.h"
 
 BlendedSteering::BlendedSteering(const std::vector<WeightedBehavior>& WeightedBehaviors)
@@ -13,22 +11,38 @@ BlendedSteering::BlendedSteering(const std::vector<WeightedBehavior>& WeightedBe
 //BLENDED STEERING
 SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
-	SteeringOutput BlendedSteering = {};
-	// TODO: Calculate the weighted average steeringbehavior
-	
-	// for (auto const& ElementBehavior : WeightedBehaviors)
-	// {
-	// 	switch (ElementBehavior.pBehavior)
-	// 	{
-	// 		case 
-	// 		default:
-	// 			assert(false);
-	// 	}
-	// 	
-	// }
-	// TODO: Add debug drawing
+	SteeringOutput blended = {};
+	blended.IsValid = false;
 
-	return BlendedSteering;
+	float totalWeight = 0.f;
+
+	for (const WeightedBehavior& wb : WeightedBehaviors)
+	{
+		if (!wb.pBehavior || wb.Weight <= 0.f)
+			continue;
+
+		SteeringOutput s = wb.pBehavior->CalculateSteering(DeltaT, Agent);
+
+		if (!s.IsValid)
+			continue;
+
+		blended.LinearVelocity += s.LinearVelocity * wb.Weight;
+		blended.AngularVelocity += s.AngularVelocity * wb.Weight;
+
+		totalWeight += wb.Weight;
+		blended.IsValid = true;
+	}
+	
+	if (blended.IsValid && totalWeight > 0.f)
+	{
+		blended.LinearVelocity /= totalWeight;
+		blended.AngularVelocity /= totalWeight;
+	}
+
+	blended.LinearVelocity = blended.LinearVelocity.GetClampedToMaxSize(Agent.GetMaxLinearSpeed());
+	blended.AngularVelocity = FMath::Clamp(blended.AngularVelocity, -Agent.GetMaxAngularSpeed(), Agent.GetMaxAngularSpeed());
+
+	return blended;
 }
 
 float* BlendedSteering::GetWeight(ISteeringBehavior* const SteeringBehavior)
@@ -60,7 +74,5 @@ SteeringOutput PrioritySteering::CalculateSteering(float DeltaT, ASteeringAgent&
 		if (Steering.IsValid)
 			break;
 	}
-
-	//If non of the behavior return a valid output, last behavior is returned
 	return Steering;
 }

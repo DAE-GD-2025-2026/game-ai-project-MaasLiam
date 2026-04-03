@@ -2,6 +2,8 @@
 
 #include "SteeringAgent.h"
 
+#include "AIController.h"
+
 
 // Sets default values
 ASteeringAgent::ASteeringAgent()
@@ -29,14 +31,40 @@ void ASteeringAgent::Tick(float DeltaTime)
 	if (SteeringBehavior)
 	{
 		SteeringOutput output = SteeringBehavior->CalculateSteering(DeltaTime, *this);
-		AddMovementInput(FVector{output.LinearVelocity, 0.f});
-		
-		if (!FMath::IsNearlyZero(output.AngularVelocity))
+		if (output.IsValid)
 		{
-			FRotator Rotator = GetActorRotation();
-			Rotator.Yaw += output.AngularVelocity * DeltaTime;
-			SetActorRotation(Rotator);
+			AddMovementInput(FVector{output.LinearVelocity, 0.f});
+			
+			if (!IsAutoOrienting())
+			{
+				if (AAIController* AIController = Cast<AAIController>(GetController()))
+				{
+					float const DeltaYaw = FMath::Clamp(output.AngularVelocity, -1.f, 1.f)
+					* GetMaxAngularSpeed() * DeltaTime;
+					
+					FRotator const CurrentRotation{GetActorForwardVector().ToOrientationRotator()};
+					FRotator const DeltaRotataion{0, DeltaYaw, 0};
+					FRotator const DesiredRotation{CurrentRotation + DeltaRotataion};
+
+					if (!FMath::IsNearlyEqual(CurrentRotation.Yaw, DesiredRotation.Yaw))
+					{
+						AIController->SetControlRotation(DesiredRotation);
+						FaceRotation(DesiredRotation);
+					}
+					
+				}
+			}
 		}
+		
+		// SteeringOutput output = SteeringBehavior->CalculateSteering(DeltaTime, *this);
+		// AddMovementInput(FVector{output.LinearVelocity, 0.f});
+		//
+		// if (!FMath::IsNearlyZero(output.AngularVelocity))
+		// {
+		// 	FRotator Rotator = GetActorRotation();
+		// 	Rotator.Yaw += output.AngularVelocity * DeltaTime;
+		// 	SetActorRotation(Rotator);
+		// }
 	}
 }
 

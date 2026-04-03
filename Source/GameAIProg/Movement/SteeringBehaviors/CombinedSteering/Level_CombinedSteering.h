@@ -3,8 +3,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
-
 #include "CoreMinimal.h"
 #include "CombinedSteeringBehaviors.h"
 #include "GameAIProg/Shared/Level_Base.h"
@@ -12,58 +10,65 @@
 #include "GameAIProg/Movement/SteeringBehaviors/SteeringAgent.h"
 #include "Level_CombinedSteering.generated.h"
 
+
+class EvadeRadius final : public Evade
+{
+public:
+	void SetEvadeRadius(float r) { Radius = r; }
+
+	SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override
+	{
+		SteeringOutput s = Evade::CalculateSteering(DeltaT, Agent);
+
+		const float dist = (Target.Position - Agent.GetPosition()).Length();
+		if (dist > Radius)
+		{
+			s.IsValid = false;
+		}
+		return s;
+	}
+
+private:
+	float Radius = 400.f;
+};
+
 UCLASS()
 class GAMEAIPROG_API ALevel_CombinedSteering : public ALevel_Base
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	ALevel_CombinedSteering();
-
-	// Called every frame
+	
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void BeginDestroy() override;
 
 private:
-	//Datamembers
-	bool UseMouseTarget = false;
+	// Agents
+	ASteeringAgent* DrunkAgent = nullptr;
+	ASteeringAgent* EvadingAgent = nullptr;
+	
+	std::unique_ptr<Seek> pSeek = nullptr;
+	std::unique_ptr<Wander> pWander = nullptr;
+	std::unique_ptr<BlendedSteering> pBlendedSteering = nullptr;
+	
+	std::unique_ptr<EvadeRadius> pEvade = nullptr;
+	std::unique_ptr<Wander> pEvadeWander = nullptr;
+	std::unique_ptr<PrioritySteering> pPrioritySteering = nullptr;
+	
+	bool UseMouseTarget = true;
 	bool CanDebugRender = false;
-	
-	enum class BehaviorTypes
-	{
-		BlendedSteering,
-		PrioritySteering,
 
-		// @ End
-		Count
-	};
+	float EvadeRadiusValue = 400.f;
 	
-	struct ImGui_Agent final
-	{
-		ASteeringAgent* Agent{nullptr};
-		std::unique_ptr<ISteeringBehavior> Behavior{nullptr};
-		int SelectedBehavior{static_cast<int>(BehaviorTypes::BlendedSteering)};
-		int SelectedTarget = -1;
-	};
-	
-	std::vector<ImGui_Agent> SteeringAgents{};
-	std::vector<std::string> TargetLabels{};
-	
-	int AgentIndexToRemove = -1;
-	
-	bool AddAgent(BehaviorTypes BehaviorType = BehaviorTypes::BlendedSteering, bool AutoOrient = true);
-	void RemoveAgent(unsigned int Index);
-	void SetAgentBehavior(ImGui_Agent& Agent);
+	void HandleMouseClickTarget();
+	void UpdateCombinedTargets();
+	void ApplyDebugRendering();
 
-	void RefreshTargetLabels();
-	void UpdateTarget(ImGui_Agent& Agent);
-	void RefreshAgentTargets(unsigned int IndexRemoved);
 	
 };
 
