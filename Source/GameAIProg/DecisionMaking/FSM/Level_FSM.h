@@ -2,9 +2,16 @@
 
 #pragma once
 
+#include <memory>
+
 #include "CoreMinimal.h"
 #include "Shared/Level_Base.h"
 #include "Level_FSM.generated.h"
+
+class ISteeringBehavior;
+class Seek;
+class Arrive;
+class Wander;
 
 UCLASS()
 class GAMEAIPROG_API ALevel_FSM : public ALevel_Base
@@ -24,5 +31,14 @@ protected:
 
 private:
 	UPROPERTY()
-	ASteeringAgent* Agent{nullptr}; // ref
+	ASteeringAgent* Guard{nullptr};
+
+	UPROPERTY()
+	ASteeringAgent* Thief{nullptr};
+
+	std::unique_ptr<Arrive> GuardArriveBehavior{};
+	std::unique_ptr<Wander> GuardWanderBehavior{};
+	std::unique_ptr<Seek> ThiefSeekBehavior{};
+
+	bool bWasLeftMouseDown{false};
 };
