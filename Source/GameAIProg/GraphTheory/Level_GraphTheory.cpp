@@ -5,6 +5,7 @@
 
 #include "Algorithms/EulerianPath.h"
 #include "Shared/GameAISpectator.h"
+#include "Algorithms/GraphColoring.h"
 
 using namespace GameAI;
 
@@ -115,11 +116,8 @@ void ALevel_GraphTheory::Tick(float DeltaTime)
 	
 	if (PlayerGraphEditor && PlayerGraphEditor->HasGraphUpdated())
 	{
-		EulerianPath eulerianPath{ &Graph };
-		Eulerianity eulerianity = Eulerianity::notEulerian;
-		
-		std::vector<Node*> trail = eulerianPath.FindPath(eulerianity);
-		UpdateAgentPath(trail);
+		GraphColoring GraphColoring{ &Graph };
+		Renderer->SetHighlightedNodes(GraphColoring.ColorGraph());
 	}
 }
 
