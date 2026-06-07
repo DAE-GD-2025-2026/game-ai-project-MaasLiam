@@ -1,3 +1,4 @@
 # Game AI Project
 
-Feel free to edit the readme to your liking
+## Extra assignment
+For my extra assignment i chose a topic from week 4 Graph theory called *Graph Coloring*
